@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file:///private/tmp/GvrSample/GvrSample.iml" filepath="/private/tmp/GvrSample/GvrSample.iml" />
+      <module fileurl="file:///private/tmp/GvrSample/app/app.iml" filepath="/private/tmp/GvrSample/app/app.iml" />
+    </modules>
+  </component>
+</project>
