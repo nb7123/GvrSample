@@ -1,8 +1,0 @@
-# ninja log v5
-1	336	0	CMakeFiles/sample-jni.dir/src/main/cpp/Object.cpp.o	fc2f5275c03d4e1a
-5	369	0	CMakeFiles/sample-jni.dir/src/main/cpp/gl/GLProgram.cpp.o	b0b82ccc4a83cf70
-3	635	0	CMakeFiles/sample-jni.dir/src/main/cpp/gl/GLHelper.cpp.o	87749041e490555f
-2	868	0	CMakeFiles/sample-jni.dir/src/main/cpp/util/GLM.cpp.o	17fd6fe26235fb75
-0	885	0	CMakeFiles/sample-jni.dir/src/main/cpp/sample_jni.cpp.o	94622b13c99a377b
-1	1529	0	CMakeFiles/sample-jni.dir/src/main/cpp/Renderer.cpp.o	a088fc1e63cb9611
-1530	1747	0	../../../../build/intermediates/cmake/debug/obj/arm64-v8a/libsample-jni.so	cfe6f58712ab667c

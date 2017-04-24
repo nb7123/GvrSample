@@ -1,3 +1,0 @@
-/tmp/GvrSample/app/.externalNativeBuild/cmake/debug/arm64-v8a/CMakeFiles/edit_cache.dir
-/tmp/GvrSample/app/.externalNativeBuild/cmake/debug/arm64-v8a/CMakeFiles/rebuild_cache.dir
-/tmp/GvrSample/app/.externalNativeBuild/cmake/debug/arm64-v8a/CMakeFiles/sample-jni.dir

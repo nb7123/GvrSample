@@ -8,7 +8,7 @@
 
 Renderer::Renderer(gvr_context_ *ctx)
         : gvr_api(gvr::GvrApi::WrapNonOwned(ctx)),
-          buffer_viewport(gvr_api->CreateBufferViewport()){
+          buffer_viewport(gvr_api->CreateBufferViewport()) {
 }
 
 Renderer::~Renderer() {
@@ -16,10 +16,6 @@ Renderer::~Renderer() {
 
 void Renderer::InitializeGL() {
     gvr_api->InitializeGl();
-
-    glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
-//    glEnable(GL_DEPTH_TEST);
 
     std::vector<gvr::BufferSpec> specs;
 
@@ -48,18 +44,21 @@ void Renderer::InitProgram(std::unique_ptr<GLProgram> program) {
 
     this->program->Use();
     GLuint pid = this->program->id();
-    
+
     GLint p_location = glGetAttribLocation(pid, "pos");
-    gl_u_pos_map.insert(std::pair<std::string, GLint>("u_model",glGetUniformLocation(pid, "u_model")));
-    gl_u_pos_map.insert(std::pair<std::string, GLint>("u_view",glGetUniformLocation(pid, "u_view")));
-    gl_u_pos_map.insert(std::pair<std::string, GLint>("u_projection",glGetUniformLocation(pid, "u_projection")));
+    gl_u_pos_map.insert(
+            std::pair<std::string, GLint>("u_model", glGetUniformLocation(pid, "u_model")));
+    gl_u_pos_map.insert(
+            std::pair<std::string, GLint>("u_view", glGetUniformLocation(pid, "u_view")));
+    gl_u_pos_map.insert(std::pair<std::string, GLint>("u_projection",
+                                                      glGetUniformLocation(pid, "u_projection")));
 
     for (auto it = gl_u_pos_map.begin(); it != gl_u_pos_map.end(); ++it) {
         LOGD(__FUNCTION__, "Uniform[%s]'s position[%d]", it->first.c_str(), it->second);
     }
-    
+
     LOGD(__FUNCTION__, "Found pos location[%d]", p_location);
-    glVertexAttribPointer(p_location, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
+    glVertexAttribPointer(p_location, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *) 0);
     glEnableVertexAttribArray(p_location);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -81,10 +80,14 @@ void Renderer::DrawFrame() {
     gvr::Mat4f head_view = gvr_api->GetHeadSpaceFromStartSpaceRotation(getClockTimePoint());
     gvr::Mat4f eye_view;
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
+
     frame.BindBuffer(0);
 
 //    glClearColor(.3f, .3f, .3f, 1.0f);
-//    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (int i = 0; i < 2; ++i) {
         gvr::Eye eye = gvr::Eye(i);
@@ -105,6 +108,9 @@ void Renderer::DrawEye(const gvr::Mat4f &eye_view, const gvr::BufferViewport &vi
     program->Use();
 
     glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
+    float s = 0.5f;
+    model = glm::scale(glm::mat4(), glm::vec3(s, s, s));
+    model = glm::rotate(glm::mat4(), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     gvr::Mat4f m;
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
@@ -114,9 +120,9 @@ void Renderer::DrawEye(const gvr::Mat4f &eye_view, const gvr::BufferViewport &vi
 
     gvr::Mat4f v = eye_view;
     gvr::Mat4f p = glm::FrustumFromFov(viewport.GetSourceFov(), 0.1f, 100.0f);
-    glUniform4fv(gl_u_pos_map["u_model"], 1, glm::MatrixToGLArray(m).data());
-    glUniform4fv(gl_u_pos_map["u_view"], 1, glm::MatrixToGLArray(v).data());
-    glUniform4fv(gl_u_pos_map["u_projection"], 1, glm::MatrixToGLArray(p).data());
+    glUniformMatrix4fv(gl_u_pos_map["u_model"], 1, GL_FALSE, glm::MatrixToGLArray(m).data());
+    glUniformMatrix4fv(gl_u_pos_map["u_view"], 1, GL_FALSE, glm::MatrixToGLArray(v).data());
+    glUniformMatrix4fv(gl_u_pos_map["u_projection"], 1, GL_FALSE, glm::MatrixToGLArray(p).data());
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 18);
