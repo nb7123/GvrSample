@@ -4,7 +4,6 @@
 
 #include "GLM.h"
 #include <cmath>
-#include <cassert>
 
 namespace glm {
     // matrix mult
@@ -70,14 +69,25 @@ namespace glm {
         return result;
     }
 
-    std::array<float, 16> MatrixToGLArray(const gvr::Mat4f &mat) {
-        std::array<float, 16> result;
+    gvr::Mat4f GLMatrixToGvrMatrix(const glm::mat4 &mat) {
+        gvr::Mat4f result;
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
-                result[i*4+j] = mat.m[i][j];
+                result.m[i][j] = mat[j][i];
             }
         }
 
         return result;
-    };
+    }
+
+    std::array<float, 16> GvrMatrixToGLArray(const gvr::Mat4f &mat) {
+        std::array<float, 16> result;
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                result[j*4+i] = mat.m[i][j];
+            }
+        }
+
+        return result;
+    }
 }

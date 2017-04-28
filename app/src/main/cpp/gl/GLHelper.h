@@ -11,22 +11,24 @@
 #include <bits/unique_ptr.h>
 #include "GLProgram.h"
 
+#define TEXTURE_DIR "Texture/"
+
 class GLHelper {
 private:
-    AAssetManager *mgr;
-    std::string shaderDir;
+    static AAssetManager* mgr;
+    static std::string shaderDir;
 public:
-    GLHelper(AAssetManager *mgr);
-    ~GLHelper();
+    static void setAAssetManager(AAssetManager *mgr);
+    static AAssetManager *getAAssetManager() { return mgr;}
 
-    void Init();
+    static void Init();
 
     /**
      * load shader source from asset file
      * @param file shader source file
      * @return
      */
-    std::string LoadShaderSrc(const char *file);
+    static std::string LoadShaderSrc(const char *file);
 
     /**
      * load gl shader use gived shader source
@@ -34,7 +36,7 @@ public:
      * @param file  shader source file
      * @return
      */
-    GLuint LoadShader(GLenum type, const char *file);
+    static GLuint LoadShader(GLenum type, const char *file);
 
     /**
      * create gl program
@@ -42,7 +44,23 @@ public:
      * @param fs_file   the frag shader src file
      * @return
      */
-    std::unique_ptr<GLProgram> CreateGLProgram(const char *vs_file, const char *fs_file);
+    static std::unique_ptr<GLProgram> CreateGLProgram(const char *vs_file, const char *fs_file);
+
+    /**
+     * load image texture from buffer data
+     * @param buffer
+     * @param buffer_length
+     * @param width
+     * @param height
+     * @param channels
+     * @param force_channel
+     * @return
+     */
+    static unsigned char *LoadTextureImage(const char *file,
+                                    int *width,
+                                    int *height,
+                                    int *channels,
+                                    int force_channel);
 };
 
 

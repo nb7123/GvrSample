@@ -12,6 +12,7 @@
 
 #include "gl/GLProgram.h"
 #include "Log.h"
+#include "gl/GLHelper.h"
 
 static const GLfloat vertex[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -47,6 +48,7 @@ private:
     gvr::BufferViewport buffer_viewport;
     std::unique_ptr<GLProgram> program;
     GLuint vao;
+    GLuint tex;
     gvr::ClockTimePoint getClockTimePoint();
     gvr::Sizei render_size;
 

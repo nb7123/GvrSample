@@ -1,8 +1,12 @@
 #version 300 es
 precision mediump float;
 
+in vec2 tex_coord;
+
+uniform sampler2D tex0;
+
 out vec4 color;
 
 void main() {
-    color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    color = texture(tex0, tex_coord);
 }

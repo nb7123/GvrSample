@@ -3,9 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GvrSample.iml" filepath="$PROJECT_DIR$/GvrSample.iml" />
-      <module fileurl="file:///private/tmp/GvrSample/GvrSample.iml" filepath="/private/tmp/GvrSample/GvrSample.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file:///private/tmp/GvrSample/app/app.iml" filepath="/private/tmp/GvrSample/app/app.iml" />
     </modules>
   </component>
 </project>

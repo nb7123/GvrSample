@@ -4,6 +4,7 @@
 
 #include "Renderer.h"
 #include "util/GLM.h"
+#include "SOIL.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 Renderer::Renderer(gvr_context_ *ctx)
@@ -42,6 +43,19 @@ void Renderer::InitProgram(std::unique_ptr<GLProgram> program) {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
 
+    // load texture
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    int w, h;
+    unsigned char *image = GLHelper::LoadTextureImage("img_cheryl.jpg",
+                                                            &w, &h, nullptr, SOIL_LOAD_RGBA
+    );
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    SOIL_free_image_data(image);
+
     this->program->Use();
     GLuint pid = this->program->id();
 
@@ -60,6 +74,9 @@ void Renderer::InitProgram(std::unique_ptr<GLProgram> program) {
     LOGD(__FUNCTION__, "Found pos location[%d]", p_location);
     glVertexAttribPointer(p_location, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *) 0);
     glEnableVertexAttribArray(p_location);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -86,10 +103,10 @@ void Renderer::DrawFrame() {
 
     frame.BindBuffer(0);
 
-//    glClearColor(.3f, .3f, .3f, 1.0f);
+    glClearColor(.3f, .3f, .3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 1; ++i) {
         gvr::Eye eye = gvr::Eye(i);
         eye_view = glm::MatrixMul(gvr_api->GetEyeFromHeadMatrix(eye), head_view);
 
@@ -107,26 +124,24 @@ void Renderer::DrawEye(const gvr::Mat4f &eye_view, const gvr::BufferViewport &vi
 
     program->Use();
 
-    glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
-    float s = 0.5f;
-    model = glm::scale(glm::mat4(), glm::vec3(s, s, s));
-    model = glm::rotate(glm::mat4(), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    gvr::Mat4f m;
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            m.m[i][j] = model[i][j];
-        }
-    }
+    glBindTexture(GL_TEXTURE_2D, tex);
 
-    gvr::Mat4f v = eye_view;
+    glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(.0f, .0f, -1.0f));
+    float s = 0.5f;
+
+//    model = glm::scale(glm::mat4(), glm::vec3(s, s, s));
+    model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    gvr::Mat4f m = glm::GLMatrixToGvrMatrix(model);
+
     gvr::Mat4f p = glm::FrustumFromFov(viewport.GetSourceFov(), 0.1f, 100.0f);
-    glUniformMatrix4fv(gl_u_pos_map["u_model"], 1, GL_FALSE, glm::MatrixToGLArray(m).data());
-    glUniformMatrix4fv(gl_u_pos_map["u_view"], 1, GL_FALSE, glm::MatrixToGLArray(v).data());
-    glUniformMatrix4fv(gl_u_pos_map["u_projection"], 1, GL_FALSE, glm::MatrixToGLArray(p).data());
+    glUniformMatrix4fv(gl_u_pos_map["u_model"], 1, GL_FALSE, glm::GvrMatrixToGLArray(m).data());
+    glUniformMatrix4fv(gl_u_pos_map["u_view"], 1, GL_FALSE, glm::GvrMatrixToGLArray(eye_view).data());
+    glUniformMatrix4fv(gl_u_pos_map["u_projection"], 1, GL_FALSE, glm::GvrMatrixToGLArray(p).data());
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 18);
     glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 gvr::ClockTimePoint Renderer::getClockTimePoint() {

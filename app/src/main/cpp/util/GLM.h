@@ -8,6 +8,8 @@
 #include <vr/gvr/capi/include/gvr.h>
 #include <vr/gvr/capi/include/gvr_types.h>
 #include <array>
+#include <glm/detail/type_mat.hpp>
+#include <glm/detail/type_mat4x4.hpp>
 
 namespace glm {
     // matrix mult
@@ -19,7 +21,9 @@ namespace glm {
     // frustum from vr fov view
     gvr::Mat4f FrustumFromFov(const gvr::Rectf &fov, const float z_near, const float z_far);
 
-    std::array<float, 16> MatrixToGLArray(const gvr::Mat4f &mat4f);
+    gvr::Mat4f GLMatrixToGvrMatrix(const glm::mat4 &mat4f);
+
+    std::array<float, 16> GvrMatrixToGLArray(const gvr::Mat4f &mat4f);
 }
 
 class GLM {

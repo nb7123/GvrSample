@@ -4,18 +4,15 @@
 
 #include "GLHelper.h"
 #include "../Log.h"
+#include "../soil/SOIL.h"
 
-GLHelper::GLHelper(AAssetManager *mgr) : mgr(mgr) {
-}
-
-GLHelper::~GLHelper() {
-    mgr = nullptr;
-}
+AAssetManager* GLHelper::mgr = nullptr;
+std::string GLHelper::shaderDir = std::string();
 
 std::string GLHelper::LoadShaderSrc(const char *file) {
     std::string result;
 
-    AAsset *aAsset = AAssetManager_open(mgr, file, AASSET_MODE_BUFFER);
+    AAsset *aAsset = AAssetManager_open(GLHelper::mgr, file, AASSET_MODE_BUFFER);
     if (nullptr == aAsset) {
         LOGE(__FUNCTION__, "Open asset file[%s] error.", file);
         return result;
@@ -36,15 +33,15 @@ std::string GLHelper::LoadShaderSrc(const char *file) {
 
 GLuint GLHelper::LoadShader(GLenum type, const char *file) {
     // load shader source
-    std::string f_path(shaderDir);
+    std::string f_path(GLHelper::shaderDir);
     f_path.append(file);
 
-    const std::string src = LoadShaderSrc(f_path.c_str());
+    const std::string src = LoadShaderSrc(f_path.data());
     if (src.length() <= 0) {
         return 0;
     }
 
-    const char *ss = src.c_str();
+    const char *ss = src.data();
     // create shader
     GLuint shader = glCreateShader(type);
     // set shader src
@@ -60,7 +57,7 @@ GLuint GLHelper::LoadShader(GLenum type, const char *file) {
     } else {
         char buff[4096];
         glGetShaderInfoLog(shader, sizeof(buff), nullptr, buff);
-        LOGW(__FUNCTION__, "Shader[%s] compile failed[%s]", f_path.c_str(), buff);
+        LOGW(__FUNCTION__, "Shader[%s] compile failed[%s]", f_path.data(), buff);
 
         glDeleteShader(shader);
         shader = 0;
@@ -109,12 +106,38 @@ void GLHelper::Init() {
     }
     const char *version = (const char *) glGetString(GL_VERSION);
     if (strstr(version, "OpenGL ES 3.")) {
-        shaderDir = "ShaderV3/";
+        GLHelper::shaderDir = "ShaderV3/";
     } else if (strstr(version, "OpenGL ES 2.")) {
-        shaderDir = "ShaderV2/";
+        GLHelper::shaderDir = "ShaderV2/";
     } else {
         LOGE(__FUNCTION__, "Unknown gl es version: %s", version);
     }
+}
+
+unsigned char *
+GLHelper::LoadTextureImage(const char *file, int *width, int *height,
+                           int *channels, int force_channel) {
+    std::string f_path(TEXTURE_DIR);
+    f_path.append(file);
+    LOGI(__FUNCTION__, "Texture path[%s]", f_path.data());
+
+    AAsset *aAsset = AAssetManager_open(GLHelper::mgr, f_path.data(), AASSET_MODE_BUFFER);
+    if (nullptr == aAsset) {
+        LOGE(__FUNCTION__, "Open asset file[%s] error.", file);
+        return nullptr;
+    }
+
+    const unsigned char *const buff = (const unsigned char *) AAsset_getBuffer(aAsset);
+
+    unsigned char *result = SOIL_load_image_from_memory(buff, AAsset_getLength(aAsset), width, height, channels, force_channel);
+
+    AAsset_close(aAsset);
+
+    return result;
+}
+
+void GLHelper::setAAssetManager(AAssetManager *a) {
+    GLHelper::mgr = a;
 }
 
 

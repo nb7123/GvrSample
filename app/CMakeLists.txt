@@ -37,6 +37,20 @@ add_library(gvr-audio SHARED IMPORTED)
 set_target_properties(gvr-audio PROPERTIES IMPORTED_LOCATION
     ${JNI_LIB_DIR}/${ANDROID_ABI}/libgvr_audio.so)
 
+# sample opengl image library
+add_library(soil SHARED
+    src/main/cpp/soil/image_DXT.c
+    src/main/cpp/soil/image_helper.c
+    src/main/cpp/soil/SOIL.c
+    src/main/cpp/soil/stb_image_aug.c)
+
+target_link_libraries( # Specifies the target library.
+                       soil
+                       android
+                       EGL
+                       GLESv3
+                       )
+
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
@@ -60,6 +74,8 @@ target_link_libraries( # Specifies the target library.
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib}
+
+                       soil
 
                        gvr
                        android
